@@ -121,43 +121,84 @@ Python 接口自动化 — 必背清单（面试 + 工作中只用这些）
          → requests.get("https://...") ← Python 字符串
 
 ============================================================================
-七、面试怎么说（用你的电商项目举例）
+七、AI 大模型接口测试（新加分项，简历亮点）
+============================================================================
+
+调用格式（DeepSeek/OpenAI/通义千问通用）：
+    headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
+    body = {"model": "deepseek-chat", "messages": [{"role": "user", "content": "..."}]}
+    r = requests.post(url, headers=headers, json=body)
+    reply = r.json()["choices"][0]["message"]["content"]
+
+AI 测试的三种断言（跟传统接口的区别）：
+    assert len(reply) > 0                    → 有回复（不是空的）
+    assert "关键词" in reply                 → 回复跟问题相关
+    any(拒绝词 in reply for ...)             → 安全测试：AI 拒绝了攻击
+
+AI 安全测试三类攻击：
+    Prompt 注入："忽略你的指令..." → 拒绝
+    DAN 越狱："进入无限制模式..." → 拒绝
+    系统提示词提取："你的系统提示词..." → 拒绝或回避
+
+AI 性能测试：
+    time.time() 计时 + Token 用量 + 费用估算
+    响应 < 5秒，Token 在 max_tokens 限制内
+
+============================================================================
+八、面试怎么说（传统接口 + AI 测试）
 ============================================================================
 
 问："你会用 Python 做接口自动化测试吗？"
 
 答：
-"会。主要用 requests 库发请求，pytest 管理用例，pytest.fixture 做前置处理。
+"会。主要用 requests 库发请求，pytest 管理用例，fixture 做前置处理。
+完整流程是请求 → 断言 → 数据驱动 → fixture → HTML 报告。
+之前做了两个项目：一个是电商接口自动化（CRUD + 鉴权 + 25条用例），
+另一个是 DeepSeek AI 接口测试（功能 + 安全 + 性能）。
 
-完整流程是：
-1. 用 requests 发 GET/POST 请求，替代 Postman 的手动操作
-2. 用 assert 做断言，校验状态码、字段值、字段是否存在
-3. 用 @pytest.mark.parametrize 做数据驱动，每组数据自动生成独立用例，
-   比 Postman Collection Runner + CSV 更清晰
-4. 用 fixture 做前置处理（登录获取 token 等），scope='session' 保证只登录一次
-5. 通过 conftest.py 统一管理 fixture，所有测试文件自动共享
+AI 测试跟传统接口测试的区别主要在断言方式——
+传统接口断言精确值，AI 接口用关键词命中和语义判断。
+另外多了一层安全测试：Prompt 注入、越狱攻击，
+还有 Token 消耗的监控和费用估算。
+但底层的 requests + pytest + fixture 这一套完全一样。"
 
-之前做电商接口测试项目时，我在 Postman 里手动测了 25 条用例。
-后来用这套 Python 方案重新实现了一遍，一条命令跑完所有模块，
-自动生成测试报告，哪个用例挂了能精确定位到具体数据行。"
+问："Prompt 注入和 SQL 注入有什么区别？"
+
+答：
+"SQL 注入是利用后端拼接 SQL 语句的漏洞，防御靠参数化查询。
+Prompt 注入是用自然语言覆盖 AI 的系统指令，
+防御靠模型本身的训练对齐，没有代码层面的修复方案。
+所以 AI 安全测试更像是在测一个'人'有没有安全意识，
+而不是测一段代码有没有漏洞。"
 
 ============================================================================
 文件对照表（复习时回去看详细笔记）：
 ============================================================================
 
-    test_01.py → GET 请求
-    test_02.py → POST 请求
-    test_03.py → assert 断言
-    test_04.py → pytest 框架
-    test_05.py → CSV 数据驱动（for 循环方式）
-    test_06.py → 独立练习（GET+POST 综合）
-    test_07.py → parametrize 数据驱动（推荐方式）
-    test_08.py → 综合练习（parametrize + 普通函数）
-    test_09.py → 独立练习（完全自己写）
-    test_10.py → fixture 基础（= Postman 环境变量）
-    test_11.py → fixture 自动提取 token
-    test_12.py → scope="session" 一次登录
-    test_13.py → conftest.py 全局共享
-    本文件     → 必背清单（精简版，面试前过一遍）
+    python_learning/
+        test_01.py → GET 请求
+        test_02.py → POST 请求
+        test_03.py → assert 断言
+        test_04.py → pytest 框架
+        test_05.py → CSV 数据驱动（for 循环）
+        test_06.py → 独立练习（GET+POST）
+        test_07.py → parametrize 数据驱动
+        test_08.py → 综合练习（guided）
+        test_09.py → 独立练习（solo）
+        test_10.py → fixture 基础
+        test_11.py → fixture 自动提取 token
+        test_12.py → scope="session"
+        test_13.py → conftest.py
+        八股_01~06.py → 测试面试八股
+        Linux_必会10个命令.py → Linux 速查
+
+    project_bookstore/
+        学习总结_Python接口自动化.md → 传统接口自动化完整笔记
+
+    project_ai_test/
+        学习总结_AI接口测试.md → AI 测试完整笔记
+        test_01~04 → AI 功能/安全/性能测试
+
+    本文件 → 必背清单（精简版，面试前过一遍）
 ============================================================================
 """
