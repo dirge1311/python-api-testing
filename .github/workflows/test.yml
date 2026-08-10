@@ -24,15 +24,19 @@ jobs:
 
       - name: 运行图书管理项目
         run: python -m pytest project_bookstore/ -v --html=report_bookstore.html --self-contained-html
-        continue-on-error: true
+
+      - name: 运行 AI 测试项目
+        env:
+          DEEPSEEK_KEY: ${{ secrets.DEEPSEEK_KEY }}
+        run: python -m pytest project_ai_test/ -v --html=report_ai_test.html --self-contained-html
 
       - name: 运行 GitHub API 项目
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: python -m pytest project_github_api/ -v --html=report_github_api.html --self-contained-html
-        continue-on-error: true
 
       - name: 上传测试报告
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-reports
