@@ -1,0 +1,39 @@
+name: Python 接口自动化测试
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: 安装依赖
+        run: pip install requests pytest pytest-html
+
+      - name: 运行图书管理项目
+        run: python -m pytest project_bookstore/ -v --html=report_bookstore.html --self-contained-html
+        continue-on-error: true
+
+      - name: 运行 GitHub API 项目
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m pytest project_github_api/ -v --html=report_github_api.html --self-contained-html
+        continue-on-error: true
+
+      - name: 上传测试报告
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: report_*.html
