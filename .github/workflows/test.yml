@@ -23,7 +23,7 @@ jobs:
         run: pip install requests pytest pytest-html
 
       - name: 运行图书管理项目
-        run: python -m pytest project_bookstore/ -v --html=report_bookstore.html --self-contained-html
+        run: python -m pytest python_learning/project_bookstore/ -v --html=report_bookstore.html --self-contained-html
 
       - name: 运行 AI 测试项目
         env:
